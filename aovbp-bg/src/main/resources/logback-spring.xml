@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <contextName>logback</contextName>
+    <property name="pattern" value="%d{YYYY-MM-dd HH:mm:ss.SSS} %contextName [%thread] %5level %logger{36} - %msg%n"/>
+    <property name="logFileName" value="@mvn.logFileName@"/>
+    <property name="logPath" value="@mvn.logPath@"/>
+    <property name="logLevel" value="@mvn.logLevel@"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+<!--    根日志，输出所有打印出来的日志-->
+    <appender name="rootFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logPath}/${logFileName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/${logFileName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+    </appender>
+<!--    只输出错误日志-->
+    <appender name="errorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logPath}/${logFileName}_error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/${logFileName}_error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <root level="${logLevel}">
+        <appender-ref ref="console"/>
+        <appender-ref ref="rootFile"/>
+        <appender-ref ref="errorFile"/>
+    </root>
+
+    <!-- additivity:false表示不再继续向上级传递；true表示继续向上传递，上级继续处理消息。默认值为true -->
+    <!-- 比如：定义了logger：com.bda.demo.foo,如果设置 additivity="false"则在com.bda.demo.foo级别输出的所有信息只在本logger中处理（即在定义的appender中输出消息），com.bda这个logger不再处理 -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.apache.ibatis" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.apache.http" level="WARN"/>
+    <logger name="org.mybatis" level="WARN"/>
+    <logger name="tk.mybatis" level="WARN"/>
+    <logger name="org.mongodb" level="WARN"/>
+</configuration>
